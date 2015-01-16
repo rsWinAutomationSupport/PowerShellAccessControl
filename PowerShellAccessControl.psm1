@@ -997,19 +997,23 @@ function New-AdaptedSecurityDescriptor {
         } | Add-Member -MemberType ScriptProperty -Name AccessPresent -PassThru -Value {
             $this.SecurityDescriptor.ControlFlags -match "DiscretionaryAcl"
         } | Add-Member -MemberType ScriptProperty -Name Access -PassThru -Value {
-            $this | Get-AccessControlEntry -AceType AccessAllowed, AccessDenied
+                "Use Get-AccessControlEntry"
+#            $this | Get-AccessControlEntry -AceType AccessAllowed, AccessDenied
         } | Add-Member -MemberType ScriptProperty -Name Owner -PassThru -Value {
             $this | GetPrincipalString -IdentityReference $this.SecurityDescriptor.Owner
         } | Add-Member -MemberType ScriptProperty -Name Group -PassThru -Value {
             $this | GetPrincipalString -IdentityReference $this.SecurityDescriptor.Group
         } | Add-Member -MemberType ScriptProperty -Name AccessToString -PassThru -Value {
-            $this | Get-AccessControlEntry -AceType AccessAllowed, AccessDenied | Convert-AclToString -DefaultAppliesTo (GetDefaultAppliesTo -IsContainer:$this.SecurityDescriptor.IsContainer -AccessMaskEnumeration $this.GetAccessMaskEnumeration())
+                "Use Get-AccessControlEntry"
+#            $this | Get-AccessControlEntry -AceType AccessAllowed, AccessDenied | Convert-AclToString -DefaultAppliesTo (GetDefaultAppliesTo -IsContainer:$this.SecurityDescriptor.IsContainer -AccessMaskEnumeration $this.GetAccessMaskEnumeration())
         } | Add-Member -MemberType ScriptProperty -Name AuditPresent -PassThru -Value {
             $this.SecurityDescriptor.ControlFlags -match "SystemAcl"
         } | Add-Member -MemberType ScriptProperty -Name Audit -PassThru -Value {
-            $this | Get-AccessControlEntry -AceType SystemAudit
+                "Use Get-AccessControlEntry"
+#            $this | Get-AccessControlEntry -AceType SystemAudit
         } | Add-Member -MemberType ScriptProperty -Name AuditToString -PassThru -Value {
-            $this | Get-AccessControlEntry -AceType SystemAudit | Convert-AclToString -DefaultAppliesTo (GetDefaultAppliesTo -IsContainer:$this.SecurityDescriptor.IsContainer -AccessMaskEnumeration $this.GetAccessMaskEnumeration())
+                "Use Get-AccessControlEntry"
+#            $this | Get-AccessControlEntry -AceType SystemAudit | Convert-AclToString -DefaultAppliesTo (GetDefaultAppliesTo -IsContainer:$this.SecurityDescriptor.IsContainer -AccessMaskEnumeration $this.GetAccessMaskEnumeration())
         } | Add-Member -MemberType ScriptMethod -Name RemoveAccessRule -PassThru -Value { 
             param(
                 $Rule
@@ -1296,8 +1300,9 @@ function New-AdaptedSecurityDescriptor {
             Add-Member -MemberType ScriptProperty -Name HasGroupChanged -PassThru -Value {
                 -not ($this.OriginalGroup -eq $this.SecurityDescriptor.Group)
         } | Add-Member -MemberType ScriptProperty -Name MandatoryIntegrityLabel -PassThru -Value {
-            Get-MandatoryIntegrityLabel -Path $this.SdPath -ObjectType $this.ObjectType | 
-                Add-Member -MemberType ScriptMethod -Name ToString -Force -PassThru -Value { "{0} ({1})" -f $this.Principal, $this.AccessMaskDisplay }
+                "Use Get-MandatoryIntegrityLabel"
+#            Get-MandatoryIntegrityLabel -Path $this.SdPath -ObjectType $this.ObjectType | 
+#                Add-Member -MemberType ScriptMethod -Name ToString -Force -PassThru -Value { "{0} ({1})" -f $this.Principal, $this.AccessMaskDisplay }
         } | Add-Member -MemberType ScriptMethod -Name GetAceCsv -PassThru -Value {
             param(
                 [char] $Delimiter = ","
@@ -2304,11 +2309,11 @@ or -Force flags with the {1} command.
                     }
                 }
             }
-
-            $ActionTextSecInfo = 0
-            if ($DiscretionaryAcl) { $ActionTextSecInfo = $ActionTextSecInfo -bor [PowerShellAccessControl.PInvoke.SecurityInformation]::ProtectedDacl }
-            if ($SystemAcl) { $ActionTextSecInfo = $ActionTextSecInfo -bor [PowerShellAccessControl.PInvoke.SecurityInformation]::ProtectedSacl }
         }
+
+        $ActionTextSecInfo = 0
+        if ($DiscretionaryAcl) { $ActionTextSecInfo = $ActionTextSecInfo -bor [PowerShellAccessControl.PInvoke.SecurityInformation]::UnprotectedDacl }
+        if ($SystemAcl) { $ActionTextSecInfo = $ActionTextSecInfo -bor [PowerShellAccessControl.PInvoke.SecurityInformation]::UnprotectedSacl }
     }
 
     process {
