@@ -530,7 +530,7 @@ etc.
                     # Get a copy of the rule (we don't want to touch the original object)
                     Write-Debug "$($MyInvocation.MyCommand): No conversion necessary"
                     $Rule = $Rule.Copy()
-                    $IsRuleInherited = [bool] ($Rule.AceFlags -band [System.Security.AccessControl.AceFlags]::Inherited)
+                    $IsRuleInherited = [bool] ([int] $Rule.AceFlags -band [System.Security.AccessControl.AceFlags]::Inherited.value__)
                     break
                 }
 
@@ -618,7 +618,7 @@ etc.
                   ($_ -eq "Microsoft.Management.Infrastructure.CimInstance" -and
                    ($Rule.CimClass.CimClassName -eq "Win32_ACE") -or ($Rule.CimClass.CimClassName -eq "__ACE")) } {
 
-                    $IsRuleInherited = [bool] ($Rule.AceFlags -band [System.Security.AccessControl.AceFlags]::Inherited)
+                    $IsRuleInherited = [bool] ([int] $Rule.AceFlags -band [System.Security.AccessControl.AceFlags]::Inherited.value__)
 
                     # Long and scary looking condition, but it just means do the
                     # following if it's a WMI object of the Win32_ACE class
@@ -643,8 +643,8 @@ etc.
 
                     if ($Rule.AceType -eq [System.Security.AccessControl.AceQualifier]::SystemAudit) {
                         # Not an access entry, but an audit entry
-                        $Params.AuditSuccess = [bool] ($Rule.AceFlags -band [System.Security.AccessControl.AceFlags]::SuccessfulAccess)
-                        $Params.AuditFailure = [bool] ($Rule.AceFlags -band [System.Security.AccessControl.AceFlags]::FailedAccess)
+                        $Params.AuditSuccess = [bool] ([int] $Rule.AceFlags -band [System.Security.AccessControl.AceFlags]::SuccessfulAccess.value__)
+                        $Params.AuditFailure = [bool] ([int] $Rule.AceFlags -band [System.Security.AccessControl.AceFlags]::FailedAccess.value__)
                     }
 
                     # Make the rule:
@@ -666,14 +666,14 @@ etc.
                 # it's usually to add or remove an ACE. In either of those 
                 # scenarios, you don't want the resulting ACE to still be
                 # inherited, so remove that flag if it's present
-                if ($Rule.AceFlags -band [System.Security.AccessControl.AceFlags]::Inherited) {
-                    $Rule.AceFlags = $Rule.AceFlags -bxor [System.Security.AccessControl.AceFlags]::Inherited
+                if ([int] $Rule.AceFlags -band [System.Security.AccessControl.AceFlags]::Inherited.value__) {
+                    $Rule.AceFlags = [int] $Rule.AceFlags -bxor [System.Security.AccessControl.AceFlags]::Inherited.value__
                 }
             }
             else {
-                if ($IsRuleInherited -and (-not ($Rule.AceFlags -band [System.Security.AccessControl.AceFlags]::Inherited))) {
+                if ($IsRuleInherited -and (-not ([int] $Rule.AceFlags -band [System.Security.AccessControl.AceFlags]::Inherited.value__))) {
                     # If the original rule was inherited, but the converted one isn't, fix it!
-                    $Rule.AceFlags = $Rule.AceFlags -bxor [System.Security.AccessControl.AceFlags]::Inherited
+                    $Rule.AceFlags = [int] $Rule.AceFlags -bxor [System.Security.AccessControl.AceFlags]::Inherited.value__
                 }
             }
 

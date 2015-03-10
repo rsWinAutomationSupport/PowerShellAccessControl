@@ -251,16 +251,16 @@ can be used to provide AuditFlags and Inheritance/Propagation flags (WMI ACE obj
 
         #region Get Inheritance and Propagation flags       
         if (-not $PSBoundParameters.ContainsKey("AppliesTo")) {
-            if ($PSBoundParameters.ContainsKey("AceFlags") -and $AceFlags -band [System.Security.AccessControl.AceFlags]::InheritanceFlags) {
+            if ($PSBoundParameters.ContainsKey("AceFlags") -and $AceFlags.value__ -band [System.Security.AccessControl.AceFlags]::InheritanceFlags.value__) {
                 # AceFlags contains inheritance/propagation info, so get the AppliesTo from that
                 $InheritanceFlags = $PropagationFlags = 0
                 foreach ($CurrentFlag in "ContainerInherit", "ObjectInherit") {
-                    if ($AceFlags -band [System.Security.AccessControl.AceFlags]::$CurrentFlag) {
+                    if ($AceFlags.value__ -band ([int][System.Security.AccessControl.AceFlags]::$CurrentFlag)) {
                         $InheritanceFlags = $InheritanceFlags -bor [System.Security.AccessControl.InheritanceFlags]::$CurrentFlag
                     }
                 }
                 foreach ($CurrentFlag in "NoPropagateInherit","InheritOnly") {
-                    if ($AceFlags -band [System.Security.AccessControl.AceFlags]::$CurrentFlag) {
+                    if ($AceFlags.value__ -band ([int][System.Security.AccessControl.AceFlags]::$CurrentFlag)) {
                         $PropagationFlags = $PropagationFlags -bor [System.Security.AccessControl.PropagationFlags]::$CurrentFlag
                     }
                 }
@@ -315,8 +315,8 @@ can be used to provide AuditFlags and Inheritance/Propagation flags (WMI ACE obj
 
             # Or Success/Failure audits may have been specified through AceFlags (usually happens
             # when another ACE is fed to New-AccessControlEntry through pipeline.
-            if ($PSBoundParameters.AceFlags -band [System.Security.AccessControl.AceFlags]::SuccessfulAccess) { $AuditFlags += "Success" }
-            if ($PSBoundParameters.AceFlags -band [System.Security.AccessControl.AceFlags]::FailedAccess) { $AuditFlags += "Failure" }
+            if ([int] $PSBoundParameters.AceFlags -band [System.Security.AccessControl.AceFlags]::SuccessfulAccess) { $AuditFlags += "Success" }
+            if ([int] $PSBoundParameters.AceFlags -band [System.Security.AccessControl.AceFlags]::FailedAccess) { $AuditFlags += "Failure" }
 
             if ($AuditFlags) {
                 $AuditFlags = $AuditFlags -as [System.Security.AccessControl.AuditFlags]
